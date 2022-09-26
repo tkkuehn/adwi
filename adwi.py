@@ -1,8 +1,10 @@
 """Read and assemble aDWI files."""
 
 import io
+from itertools import chain, combinations
 import re
 
+from attrs import define
 import click
 import numpy as np
 import pandas as pd
@@ -118,6 +120,40 @@ def build_rot_table(orig, dirs):
         return angles_from_dir(orig, row)
 
     return dirs.apply(angles_from_row, axis=1, result_type="broadcast")
+
+
+@define
+class OscillatingGradientPair:
+    time_offset: int = 0
+    polarity: 1 | -1
+    time_delta: int
+    time_rise: list[list[int]]
+    time_fall: list[list[int]]
+    time_plateau: list[list[int]]
+    amplitude: list[list[float]]
+
+    def __attrs_post_init__(self):
+        if any(
+            len(first) != len(second)
+            for first, second in combinations(
+                [self.time_rise, self.time_fall, self.time_plateau, self.amplitude], 2
+            )
+        ):
+            raise ValueError(
+                "time_rise, time_fall, time_plateau, and amplitude all need the "
+                "same length"
+            )
+        for sublist in chain(
+            self.time_rise, self.time_fall, self.time_plateau, self.amplitude
+        ):
+            if len(sublist) != 3:
+                raise ValueError("All sublists must be length 3")
+
+    def gen_waveform(self, sampling_period, length):
+        arr_out = pd.DataFrame(
+            np.zeros([length // sampling_period, 3]), columns=["x", "y", "z"]
+        )
+        return arr_out
 
 
 class SpecificationError(Exception):
