@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 
 
-def read_waveforms(path: PathLike) -> tuple[pd.DataFrame]:
+def read_waveforms(path: PathLike) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Read waveform file into a dataframe."""
     with open(path, "r", encoding="utf-8") as waveform_file:
         waveform_lines: list[str] = waveform_file.readlines()
@@ -175,7 +175,7 @@ class SpecificationError(Exception):
 
 @click.group()
 def cli():
-    """Click group for subcommands."""
+    """Generate aDWI-BIDS files from source inputs."""
 
 
 @cli.command()
@@ -205,7 +205,3 @@ def gen_dir_table(dirs_path: PathLike, vols_path: PathLike, out_path: PathLike):
     out_table.insert(0, "v", vols["vol_idx"])
     out_table.insert(1, "d", vols["waveform_idx"])
     out_table.to_csv(out_path, sep="\t", index=False)
-
-
-if __name__ == "__main__":
-    cli()
