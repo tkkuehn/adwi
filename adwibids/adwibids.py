@@ -49,7 +49,7 @@ def read_vols(path: PathLike) -> pd.DataFrame:
 def read_dirs(path: PathLike) -> pd.DataFrame:
     """Parse and read direction file into a dataframe."""
     dir_pattern = (
-        r"Vector\[\d+\] = \( (-?\d+(?:\.\d+)?, -?\d+(?:\.\d+)?, -?\d+(?:\.\d+)?) \)"
+        r"Vector\[-?\d+\] = \( (-?\d+(?:\.\d+)?, -?\d+(?:\.\d+)?, -?\d+(?:\.\d+)?) \)"
     )
     with open(path, "r", encoding="utf-8") as dir_file:
         lines: list[str] = list(dir_file.readlines())
